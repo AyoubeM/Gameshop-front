@@ -21,13 +21,13 @@ const NavBar = () => {
         <Link to="/">GameShop</Link>
       </div>
       <ul className="nav-links">
-        {isAdmin && (
-          <li className="productform">
-            <Link to="/product-form">
-              <FaPlus />
-            </Link>
-          </li>
-        )}
+        {/* {isAdmin && ( */}
+        <li className="productform">
+          <Link to="/product-form">
+            <FaPlus />
+          </Link>
+        </li>
+        {/* )} */}
         <li className="UserLogin">
           <Link to="/login">
             <FaUser />

@@ -2,7 +2,6 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import React, { useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import AccountManager from "./components/AccountManager";
-import AdminSetup from "./components/AdminSetup";
 import CategoryProducts from "./components/CategoryProducts/CategoryProducts";
 import AuthProvider from "./components/context/AuthContext";
 import CartProvider from "./components/context/CartContext";
@@ -57,7 +56,6 @@ const App = () => {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/admin-setup" element={<AdminSetup />} />
               <Route
                 path="/edit-product/:productId"
                 element={<EditProduct />}
