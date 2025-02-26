@@ -12,6 +12,7 @@ const ProductForm = () => {
   const [categorie, setCategorie] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [server, setServer] = useState("");
+  const [platform, setPlatform] = useState("");
   const [subProduct, setSubProduct] = useState([{ dlc: "", price: "" }]);
   const [categories, setCategories] = useState([]);
   const [accountDetails, setAccountDetails] = useState({
@@ -71,6 +72,7 @@ const ProductForm = () => {
         categorie: categorie.trim(),
         imageUrl,
         server,
+        platform,
         subProduct,
         hasAccount: true,
         accountsAvailable: validAccounts.length,
@@ -87,6 +89,10 @@ const ProductForm = () => {
           productId: productDoc.id,
           email: account.email,
           password: account.password,
+          recoveryEmail: accountDetails.recoveryEmail,
+          additionalInfo: accountDetails.additionalInfo,
+          server: server,
+          platform: platform,
           sold: false,
           createdAt: new Date(),
         });
@@ -109,6 +115,7 @@ const ProductForm = () => {
       setCategorie("");
       setImageUrl("");
       setServer("");
+      setPlatform("");
 
       alert(`Produit ajouté avec succès avec ${validAccounts.length} comptes!`);
     } catch (error) {
@@ -281,6 +288,17 @@ exemple2@mail.com,pass456,info2"
               value={accountBatch}
               onChange={(e) => setAccountBatch(e.target.value)}
               rows="10"
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="platform">Platform:</label>
+            <input
+              type="text"
+              id="platform"
+              value={platform}
+              onChange={(e) => setPlatform(e.target.value)}
+              placeholder="Platform (e.g., PC, PS5, etc.)"
             />
           </div>
 

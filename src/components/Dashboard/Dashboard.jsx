@@ -61,6 +61,8 @@ const Dashboard = () => {
   const [dashboardCategories, setDashboardCategories] = useState([]);
   const [accounts, setAccounts] = useState([]);
   const [selectedProductId, setSelectedProductId] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -72,7 +74,7 @@ const Dashboard = () => {
       } else if (activeTab === "categories") {
         loadCategories();
       } else if (activeTab === "accounts") {
-        fetchProductsWithAccounts();
+        fetchAccounts();
       }
     }
   }, [isAdmin, activeTab]);
@@ -80,18 +82,18 @@ const Dashboard = () => {
   const fetchOrders = async () => {
     try {
       const ordersRef = collection(db, "orders");
-      const q = query(ordersRef, orderBy("date", "desc"));
-      const querySnapshot = await getDocs(q);
+      const querySnapshot = await getDocs(ordersRef);
 
       const ordersData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
         date: doc.data().date.toDate().toLocaleString(),
+        userEmail: doc.data().userEmail,
       }));
 
       setOrders(ordersData);
     } catch (error) {
-      console.error("Erreur lors de la récupération des commandes:", error);
+      console.error("Error fetching orders:", error);
     }
   };
 
@@ -149,6 +151,9 @@ const Dashboard = () => {
       console.log("Accounts fetched:", accountsData);
     } catch (error) {
       console.error("Error fetching accounts:", error);
+      setError("Error fetching accounts");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -349,12 +354,6 @@ const Dashboard = () => {
     }
   };
 
-  useEffect(() => {
-    if (isAdmin && activeTab === "accounts" && selectedProductId) {
-      fetchAccounts();
-    }
-  }, [isAdmin, activeTab, selectedProductId]);
-
   const renderContent = () => {
     switch (activeTab) {
       case "orders":
@@ -385,14 +384,7 @@ const Dashboard = () => {
                     {orders.map((order) => (
                       <tr key={order.id}>
                         <td>{order.date}</td>
-                        <td>
-                          <div className="client-info">
-                            <span>{order.payerInfo?.name}</span>
-                            <span className="client-email">
-                              {order.payerInfo?.email}
-                            </span>
-                          </div>
-                        </td>
+                        <td>{order.userEmail}</td>
                         <td>
                           <ul className="products-list">
                             {order.products.map((product, index) => (
@@ -601,45 +593,39 @@ const Dashboard = () => {
               {selectedProductId && (
                 <div className="accounts-list">
                   <h3>Comptes du produit ({accounts.length} total)</h3>
-                  <table className="accounts-table">
-                    <thead>
-                      <tr>
-                        <th>Email</th>
-                        <th>Mot de passe</th>
-                        <th>Statut</th>
-                        <th>Vendu à</th>
-                        <th>Date de vente</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {accounts.length === 0 ? (
+                  {loading ? (
+                    <div>Loading...</div>
+                  ) : error ? (
+                    <div>Error: {error}</div>
+                  ) : accounts.length === 0 ? (
+                    <div>No accounts available</div>
+                  ) : (
+                    <table className="accounts-table">
+                      <thead>
                         <tr>
-                          <td colSpan="5" style={{ textAlign: "center" }}>
-                            Aucun compte trouvé
-                          </td>
+                          <th>ID</th>
+                          <th>Email</th>
+                          <th>Server</th>
+                          <th>Platform</th>
+                          <th>Actions</th>
                         </tr>
-                      ) : (
-                        accounts.map((account) => (
+                      </thead>
+                      <tbody>
+                        {accounts.map((account) => (
                           <tr
                             key={account.id}
                             className={account.sold ? "sold" : ""}
                           >
+                            <td>{account.id}</td>
                             <td>{account.email}</td>
-                            <td>{account.password}</td>
-                            <td>{account.sold ? "Vendu" : "Disponible"}</td>
-                            <td>{account.soldTo || "-"}</td>
-                            <td>
-                              {account.soldAt
-                                ? new Date(
-                                    account.soldAt.seconds * 1000
-                                  ).toLocaleString()
-                                : "-"}
-                            </td>
+                            <td>{account.server}</td>
+                            <td>{account.platform}</td>
+                            <td>{/* Add any action buttons if needed */}</td>
                           </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
                 </div>
               )}
             </div>
