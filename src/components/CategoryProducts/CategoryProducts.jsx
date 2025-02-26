@@ -6,7 +6,7 @@ import NavBar from "../NavBar/NavBar";
 import "./CategoryProducts.css";
 
 const CategoryProducts = () => {
-  const { category } = useParams();
+  const { categoryName } = useParams();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,7 +16,7 @@ const CategoryProducts = () => {
     const fetchProducts = async () => {
       try {
         // Vérifier si la catégorie existe
-        if (!category) {
+        if (!categoryName) {
           setError("Catégorie non spécifiée");
           setLoading(false);
           return;
@@ -26,7 +26,7 @@ const CategoryProducts = () => {
         setError(null);
 
         const productsRef = collection(db, "products");
-        const q = query(productsRef, where("categorie", "==", category));
+        const q = query(productsRef, where("categorie", "==", categoryName));
         const querySnapshot = await getDocs(q);
         const productsData = querySnapshot.docs.map((doc) => ({
           id: doc.id,
@@ -44,14 +44,7 @@ const CategoryProducts = () => {
     };
 
     fetchProducts();
-  }, [category]);
-
-  // Ne pas rediriger si la catégorie existe mais est vide
-  useEffect(() => {
-    if (category === undefined) {
-      navigate("/");
-    }
-  }, [category, navigate]);
+  }, [categoryName]);
 
   const handleProductClick = (productId) => {
     navigate(`/product-details/${productId}`);
@@ -72,7 +65,7 @@ const CategoryProducts = () => {
     <div>
       <NavBar />
       <div className="category-container">
-        <h1>{category}</h1>
+        <h1>{categoryName}</h1>
         {loading ? (
           <div className="loading">Chargement...</div>
         ) : products.length === 0 ? (
