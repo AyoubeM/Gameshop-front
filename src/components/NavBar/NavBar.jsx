@@ -5,11 +5,13 @@ import { Link } from "react-router-dom";
 import { CartContext } from "../context/CartContext";
 import useAuth from "../hooks/useAuth";
 import "./NavBar.css";
+import { AuthContext } from "../context/AuthContext";
 
 const NavBar = () => {
   const { loading, isAdmin } = useAuth();
   const { cart } = useContext(CartContext);
   const [showCartPreview, setShowCartPreview] = useState(false);
+  const { user, logout } = useContext(AuthContext);
 
   if (loading) {
     return <nav className="navbar">Chargement...</nav>;
@@ -29,9 +31,11 @@ const NavBar = () => {
           </li>
         )}
         <li className="UserLogin">
-          <Link to="/login">
-            <FaUser />
-          </Link>
+          {user ? (
+            <Link to="/dashboard">Dashboard</Link>
+          ) : (
+            <Link to="/login">Login</Link>
+          )}
         </li>
         <li className="CategorieList">
           <Link to="/categorie-list">
@@ -63,6 +67,11 @@ const NavBar = () => {
             </div>
           )}
         </li>
+        {user && (
+          <li>
+            <button onClick={logout}>Logout</button>
+          </li>
+        )}
       </ul>
     </nav>
   );
