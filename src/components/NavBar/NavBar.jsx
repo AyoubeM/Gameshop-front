@@ -1,17 +1,18 @@
 import React, { useContext, useState } from "react";
 import { BsCollectionFill } from "react-icons/bs";
-import { FaPlus, FaShoppingCart, FaUser } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { FaPlus, FaShoppingCart } from "react-icons/fa";
+import { Link, useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 import { CartContext } from "../context/CartContext";
 import useAuth from "../hooks/useAuth";
 import "./NavBar.css";
-import { AuthContext } from "../context/AuthContext";
 
 const NavBar = () => {
   const { loading, isAdmin } = useAuth();
   const { cart } = useContext(CartContext);
   const [showCartPreview, setShowCartPreview] = useState(false);
   const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
 
   if (loading) {
     return <nav className="navbar">Chargement...</nav>;
@@ -69,7 +70,7 @@ const NavBar = () => {
         </li>
         {user && (
           <li>
-            <button onClick={logout}>Logout</button>
+            <button onClick={() => logout(navigate)}>Logout</button>
           </li>
         )}
       </ul>
