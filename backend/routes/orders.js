@@ -5,7 +5,7 @@ const sendEmail = require("../utils/sendEmail");
 const router = express.Router();
 
 router.post("/place-order", async (req, res) => {
-  const { userEmail, accountDetails } = req.body; // Assuming you get these from the request
+  const { userEmail, accountDetails } = req.body; // Ensure these are being sent correctly
 
   try {
     // Logic to save the order in the database...
@@ -14,7 +14,7 @@ router.post("/place-order", async (req, res) => {
     const emailSubject = "Your Order Confirmation";
     const emailText = `Thank you for your order! Here are your account details:\n\nAccount: ${accountDetails.email}\nServer: ${accountDetails.server}\nPlatform: ${accountDetails.platform}`;
 
-    await sendEmail(userEmail, emailSubject, emailText);
+    await sendEmail(userEmail, emailSubject, emailText); // Ensure this line is executed
 
     res.status(200).send("Order placed successfully and email sent.");
   } catch (error) {
