@@ -24,6 +24,7 @@ const ProductDetails = () => {
   const [loading, setLoading] = useState(true);
   const [selectedSubProduct, setSelectedSubProduct] = useState(null);
   const { addToCart } = useContext(CartContext);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -45,9 +46,11 @@ const ProductDetails = () => {
           setProduct(productData);
         } else {
           console.log("Aucun document trouvé avec l'ID:", productId);
+          setError("Product not found");
         }
       } catch (error) {
         console.error("Erreur lors de la récupération:", error);
+        setError("Error fetching product");
       } finally {
         setLoading(false);
       }
@@ -96,8 +99,17 @@ const ProductDetails = () => {
     window.location.href = paypalMeUrl;
   };
 
+  const handleFakePayment = () => {
+    alert("This is a fictitious payment. Payment process simulated!");
+    // Here you can add any additional logic you want to test
+  };
+
   if (loading) {
     return <div className="loading">Chargement...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   if (!product) {
@@ -251,6 +263,10 @@ const ProductDetails = () => {
 
             <button className="add-to-cart-btn" onClick={handleAddToCart}>
               Add to Cart
+            </button>
+
+            <button className="fake-payment-button" onClick={handleFakePayment}>
+              Simulate Payment
             </button>
           </div>
 

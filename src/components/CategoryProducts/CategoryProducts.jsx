@@ -11,13 +11,14 @@ const CategoryProducts = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sortOption, setSortOption] = useState("name-asc");
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // Vérifier si la catégorie existe
+        // Check if the category exists
         if (!categoryName) {
-          setError("Catégorie non spécifiée");
+          setError("Category not specified");
           setLoading(false);
           return;
         }
@@ -33,11 +34,11 @@ const CategoryProducts = () => {
           ...doc.data(),
         }));
 
-        console.log("Produits trouvés:", productsData);
+        console.log("Products found:", productsData);
         setProducts(productsData);
         setLoading(false);
       } catch (error) {
-        console.error("Erreur lors de la récupération des produits:", error);
+        console.error("Error retrieving products:", error);
         setError(error.message);
         setLoading(false);
       }
@@ -45,6 +46,31 @@ const CategoryProducts = () => {
 
     fetchProducts();
   }, [categoryName]);
+
+  const sortProducts = (option) => {
+    const [criteria, order] = option.split("-");
+    const sortedProducts = [...products].sort((a, b) => {
+      if (criteria === "name") {
+        return order === "asc"
+          ? a.name.localeCompare(b.name)
+          : b.name.localeCompare(a.name);
+      } else if (criteria === "price") {
+        return order === "asc" ? a.price - b.price : b.price - a.price;
+      } else if (criteria === "date") {
+        return order === "asc"
+          ? new Date(a.createdAt) - new Date(b.createdAt)
+          : new Date(b.createdAt) - new Date(a.createdAt);
+      }
+      return 0;
+    });
+    setProducts(sortedProducts);
+  };
+
+  const handleSortChange = (e) => {
+    const selectedOption = e.target.value;
+    setSortOption(selectedOption);
+    sortProducts(selectedOption);
+  };
 
   const handleProductClick = (productId) => {
     navigate(`/product-details/${productId}`);
@@ -55,7 +81,7 @@ const CategoryProducts = () => {
       <div>
         <NavBar />
         <div className="category-container">
-          <div className="error">Erreur: {error}</div>
+          <div className="error">Error: {error}</div>
         </div>
       </div>
     );
@@ -66,12 +92,21 @@ const CategoryProducts = () => {
       <NavBar />
       <div className="category-container">
         <h1>{categoryName}</h1>
+        <div className="sort-controls">
+          <label htmlFor="sort">Sort by:</label>
+          <select id="sort" value={sortOption} onChange={handleSortChange}>
+            <option value="name-asc">Name (A-Z)</option>
+            <option value="name-desc">Name (Z-A)</option>
+            <option value="price-asc">Price (Low to High)</option>
+            <option value="price-desc">Price (High to Low)</option>
+            <option value="date-asc">Date (Oldest to Newest)</option>
+            <option value="date-desc">Date (Newest to Oldest)</option>
+          </select>
+        </div>
         {loading ? (
-          <div className="loading">Chargement...</div>
+          <div className="loading">Loading...</div>
         ) : products.length === 0 ? (
-          <div className="no-products">
-            Aucun produit trouvé dans cette catégorie
-          </div>
+          <div className="no-products">No products found in this category</div>
         ) : (
           <div className="products-grid">
             {products.map((product) => (
@@ -88,14 +123,13 @@ const CategoryProducts = () => {
                 </div>
                 <div className="product-details">
                   <h2>{product.name}</h2>
-                  <p className="price">${product.price}</p>
-                  <p className="description">{product.description}</p>
+                  <p className="price">${product.price}</p>{" "}
                   {product.server && (
-                    <p className="server">Serveur: {product.server}</p>
+                    <p className="server">Server: {product.server}</p>
                   )}
                   {product.subProduct && product.subProduct.length > 0 && (
                     <div className="sub-products">
-                      <h3>Versions disponibles:</h3>
+                      <h3>Available Versions:</h3>
                       <ul>
                         {product.subProduct.map((sub, index) => (
                           <li key={index}>

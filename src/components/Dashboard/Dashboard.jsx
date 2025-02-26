@@ -135,41 +135,20 @@ const Dashboard = () => {
     }
   };
 
-  const fetchAccounts = async (productId) => {
+  const fetchAccounts = async () => {
     try {
-      console.log("Fetching accounts for product:", productId);
       const accountsRef = collection(db, "accounts");
-      const q = query(
-        accountsRef,
-        where("productId", "==", productId),
-        orderBy("createdAt", "desc")
-      );
-      const snapshot = await getDocs(q);
-      console.log("Found accounts:", snapshot.size);
-
-      const accountsData = snapshot.docs.map((doc) => ({
+      const q = query(accountsRef, where("sold", "==", false));
+      const querySnapshot = await getDocs(q);
+      const accountsData = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate().toLocaleString(),
       }));
 
       setAccounts(accountsData);
-
-      const availableAccounts = accountsData.filter((acc) => !acc.sold).length;
-      const productRef = doc(db, "products", productId);
-      await updateDoc(productRef, {
-        accountsAvailable: availableAccounts,
-      });
-
-      setProducts(
-        products.map((p) =>
-          p.id === productId
-            ? { ...p, accountsAvailable: availableAccounts }
-            : p
-        )
-      );
+      console.log("Accounts fetched:", accountsData);
     } catch (error) {
-      console.error("Erreur lors du chargement des comptes:", error);
+      console.error("Error fetching accounts:", error);
     }
   };
 
@@ -372,7 +351,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (isAdmin && activeTab === "accounts" && selectedProductId) {
-      fetchAccounts(selectedProductId);
+      fetchAccounts();
     }
   }, [isAdmin, activeTab, selectedProductId]);
 
@@ -716,7 +695,7 @@ const Dashboard = () => {
             </div>
             <div className="content-area">
               <div className="admin-content">
-                <button onClick={handleMigration} className="migrate-button">
+                {/* <button onClick={handleMigration} className="migrate-button">
                   Migrer les produits vers Firestore
                 </button>
                 <button
@@ -724,7 +703,7 @@ const Dashboard = () => {
                   className="migrate-button"
                 >
                   Migrer les catégories vers Firestore
-                </button>
+                </button> */}
                 {renderContent()}
               </div>
             </div>
